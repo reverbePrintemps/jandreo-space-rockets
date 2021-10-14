@@ -2,14 +2,14 @@ import React from "react";
 import { Badge, Box, SimpleGrid, Text } from "@chakra-ui/core";
 import { Link } from "react-router-dom";
 
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
-import LoadMoreButton from "./load-more-button";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
+import { LoadMoreButton } from "./load-more-button";
 import { useSpaceXPaginated } from "../utils/use-space-x";
 
 const PAGE_SIZE = 12;
 
-export default function LaunchPads() {
+export const LaunchPads = () => {
   const { data, error, isValidating, size, setSize } = useSpaceXPaginated(
     "/launchpads",
     {
@@ -24,14 +24,12 @@ export default function LaunchPads() {
       />
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
-        {data &&
-          data
-            .flat()
-            .map((launchPad) => (
-              <LaunchPadItem key={launchPad.site_id} launchPad={launchPad} />
-            ))}
+        {data && data.flat().map((launchPad) => (
+          <LaunchPadItem key={launchPad.site_id} launchPad={launchPad} />
+        ))}
       </SimpleGrid>
       <LoadMoreButton
+        // @ts-ignore
         loadMore={() => setSize(size + 1)}
         data={data}
         pageSize={PAGE_SIZE}
@@ -39,12 +37,13 @@ export default function LaunchPads() {
       />
     </div>
   );
-}
+};
 
-function LaunchPadItem({ launchPad }) {
+const LaunchPadItem = ({ launchPad }: any) => {
   return (
     <Box
       as={Link}
+      // @ts-ignore
       to={`/launch-pads/${launchPad.site_id}`}
       boxShadow="md"
       borderWidth="1px"

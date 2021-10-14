@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2019", "DOM"],
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "ES2019",
+    "checkJs": false,
+    "strictNullChecks": true,
+    "allowJs": false,
+    "noUnusedLocals": true,
+    "noImplicitAny": true,
+    "baseUrl": ".",
+    "jsx": "react",
+    "typeRoots": ["node_modules/@types/", "typings"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "noEmit": true
+  },
+  "exclude": ["api-mocks"],
+  "include": ["src"]
+}

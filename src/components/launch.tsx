@@ -23,14 +23,19 @@ import {
 
 import { useSpaceX } from "../utils/use-space-x";
 import { formatDateTime } from "../utils/format-date";
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
 
-export default function Launch() {
-  let { launchId } = useParams();
-  const { data: launch, error } = useSpaceX(`/launches/${launchId}`);
+type LaunchParams = {
+  launchId: string
+}
+
+export const Launch = () => {
+  const { launchId } = useParams<LaunchParams>();
+  const { data: launch, error } = useSpaceX(`/launches/${launchId}`, {});
 
   if (error) return <Error />;
+
   if (!launch) {
     return (
       <Flex justifyContent="center" alignItems="center" minHeight="50vh">
@@ -62,13 +67,13 @@ export default function Launch() {
   );
 }
 
-function Header({ launch }) {
+const Header = ({ launch }: any) => {
   return (
     <Flex
       bgImage={`url(${launch.links.flickr_images[0]})`}
       bgPos="center"
       bgSize="cover"
-      bgRepeat="no-repeat"
+      backgroundRepeat="no-repeat"
       minHeight="30vh"
       position="relative"
       p={[2, 6]}
@@ -113,7 +118,7 @@ function Header({ launch }) {
   );
 }
 
-function TimeAndLocation({ launch }) {
+const TimeAndLocation = ({ launch }: any) => {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -137,6 +142,7 @@ function TimeAndLocation({ launch }) {
         </StatLabel>
         <StatNumber fontSize={["md", "xl"]}>
           <Link
+            // @ts-ignore
             as={RouterLink}
             to={`/launch-pads/${launch.launch_site.site_id}`}
           >
@@ -149,7 +155,7 @@ function TimeAndLocation({ launch }) {
   );
 }
 
-function RocketInfo({ launch }) {
+const RocketInfo = ({ launch }: any) => {
   const cores = launch.rocket.first_stage.cores;
 
   return (
@@ -181,10 +187,10 @@ function RocketInfo({ launch }) {
             </Box>
           </StatLabel>
           <StatNumber fontSize={["md", "xl"]}>
-            {cores.map((core) => core.core_serial).join(", ")}
+            {cores.map((core: any) => core.core_serial).join(", ")}
           </StatNumber>
           <StatHelpText>
-            {cores.every((core) => core.land_success)
+            {cores.every((core: any) => core.land_success)
               ? cores.length === 1
                 ? "Recovered"
                 : "All recovered"
@@ -204,7 +210,7 @@ function RocketInfo({ launch }) {
           <StatHelpText>
             Payload:{" "}
             {launch.rocket.second_stage.payloads
-              .map((payload) => payload.payload_type)
+              .map((payload: any) => payload.payload_type)
               .join(", ")}
           </StatHelpText>
         </Stat>
@@ -213,12 +219,13 @@ function RocketInfo({ launch }) {
   );
 }
 
-function Video({ launch }) {
+const Video = ({ launch }: any) => {
   return (
     <AspectRatioBox maxH="400px" ratio={1.7}>
       <Box
         as="iframe"
         title={launch.mission_name}
+        // @ts-ignore
         src={`https://www.youtube.com/embed/${launch.links.youtube_id}`}
         allowFullScreen
       />
@@ -226,10 +233,10 @@ function Video({ launch }) {
   );
 }
 
-function Gallery({ images }) {
+const Gallery = ({ images }: any) => {
   return (
     <SimpleGrid my="6" minChildWidth="350px" spacing="4">
-      {images.map((image) => (
+      {images.map((image: any) => (
         <a href={image} key={image}>
           <Image src={image.replace("_o.jpg", "_z.jpg")} />
         </a>

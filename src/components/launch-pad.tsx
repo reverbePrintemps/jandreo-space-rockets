@@ -18,13 +18,17 @@ import {
 } from "@chakra-ui/core";
 
 import { useSpaceX } from "../utils/use-space-x";
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
 import { LaunchItem } from "./launches";
 
-export default function LaunchPad() {
-  let { launchPadId } = useParams();
-  const { data: launchPad, error } = useSpaceX(`/launchpads/${launchPadId}`);
+type launchPadParams = {
+  launchPadId: string
+}
+
+export const LaunchPad = () => {
+  const { launchPadId } = useParams<launchPadParams>();
+  const { data: launchPad, error } = useSpaceX(`/launchpads/${launchPadId}`, {});
 
   const { data: launches } = useSpaceX(launchPad ? "/launches/past" : null, {
     limit: 3,
@@ -67,13 +71,13 @@ export default function LaunchPad() {
 const randomColor = (start = 200, end = 250) =>
   `hsl(${start + end * Math.random()}, 80%, 90%)`;
 
-function Header({ launchPad }) {
+const Header = ({ launchPad }: any) => {
   return (
     <Flex
       background={`linear-gradient(${randomColor()}, ${randomColor()})`}
       bgPos="center"
       bgSize="cover"
-      bgRepeat="no-repeat"
+      backgroundRepeat="no-repeat"
       minHeight="15vh"
       position="relative"
       flexDirection={["column", "row"]}
@@ -110,7 +114,7 @@ function Header({ launchPad }) {
   );
 }
 
-function LocationAndVehicles({ launchPad }) {
+const LocationAndVehicles = ({ launchPad }: any) => {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -138,11 +142,12 @@ function LocationAndVehicles({ launchPad }) {
   );
 }
 
-function Map({ location }) {
+const Map = ({ location }: any) => {
   return (
     <AspectRatioBox ratio={16 / 5}>
       <Box
         as="iframe"
+        // @ts-ignore
         src={`https://maps.google.com/maps?q=${location.latitude}, ${location.longitude}&z=15&output=embed`}
         alt="demo"
       />
@@ -150,7 +155,7 @@ function Map({ location }) {
   );
 }
 
-function RecentLaunches({ launches }) {
+const RecentLaunches = ({ launches }: any) => {
   if (!launches?.length) {
     return null;
   }
@@ -160,7 +165,7 @@ function RecentLaunches({ launches }) {
         Last launches
       </Text>
       <SimpleGrid minChildWidth="350px" spacing="4">
-        {launches.map((launch) => (
+        {launches.map((launch: any) => (
           <LaunchItem launch={launch} key={launch.flight_number} />
         ))}
       </SimpleGrid>

@@ -5,13 +5,13 @@ import { Link } from "react-router-dom";
 
 import { useSpaceXPaginated } from "../utils/use-space-x";
 import { formatDate } from "../utils/format-date";
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
-import LoadMoreButton from "./load-more-button";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
+import { LoadMoreButton } from "./load-more-button";
 
 const PAGE_SIZE = 12;
 
-export default function Launches() {
+export const Launches = () => {
   const { data, error, isValidating, setSize, size } = useSpaceXPaginated(
     "/launches/past",
     {
@@ -20,7 +20,7 @@ export default function Launches() {
       sort: "launch_date_utc",
     }
   );
-  console.log(data, error);
+
   return (
     <div>
       <Breadcrumbs
@@ -36,6 +36,7 @@ export default function Launches() {
             ))}
       </SimpleGrid>
       <LoadMoreButton
+        // @ts-ignore
         loadMore={() => setSize(size + 1)}
         data={data}
         pageSize={PAGE_SIZE}
@@ -45,10 +46,11 @@ export default function Launches() {
   );
 }
 
-export function LaunchItem({ launch }) {
+export const LaunchItem = ({ launch }: any) => {
   return (
     <Box
       as={Link}
+      // @ts-ignore
       to={`/launches/${launch.flight_number.toString()}`}
       boxShadow="md"
       borderWidth="1px"

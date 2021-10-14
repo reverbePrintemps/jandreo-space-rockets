@@ -8,7 +8,14 @@ import {
 import { Link } from "react-router-dom";
 import { ChevronsRight } from "react-feather";
 
-export default function Breadcrumbs({ items }) {
+type BreadcrumbProps = {
+  items: {
+    label: string,
+    to?: string
+  }[]
+}
+
+export const Breadcrumbs: React.FC<BreadcrumbProps> = ({ items }) => {
   return (
     <Breadcrumb
       m="6"
@@ -20,6 +27,7 @@ export default function Breadcrumbs({ items }) {
         return (
           <BreadcrumbItem isCurrentPage={isCurrentPage} key={item.label}>
             <BreadcrumbLink
+              // @ts-ignore https://github.com/chakra-ui/chakra-ui/issues/247
               as={!isCurrentPage ? Link : undefined}
               to={!isCurrentPage ? item.to : undefined}
             >
