@@ -17,9 +17,9 @@ import {
   Image,
   Link,
   Stack,
-  AspectRatioBox,
+  AspectRatio,
   StatGroup,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 import { useSpaceX } from "../utils/use-space-x";
 import { formatDateTime } from "../utils/format-date";
@@ -101,15 +101,15 @@ const Header = ({ launch }: any) => {
         {launch.mission_name}
       </Heading>
       <Stack isInline spacing="3">
-        <Badge variantColor="purple" fontSize={["xs", "md"]}>
+        <Badge colorScheme="purple" fontSize={["xs", "md"]}>
           #{launch.flight_number}
         </Badge>
         {launch.launch_success ? (
-          <Badge variantColor="green" fontSize={["xs", "md"]}>
+          <Badge colorScheme="green" fontSize={["xs", "md"]}>
             Successful
           </Badge>
         ) : (
-          <Badge variantColor="red" fontSize={["xs", "md"]}>
+          <Badge colorScheme="red" fontSize={["xs", "md"]}>
             Failed
           </Badge>
         )}
@@ -142,7 +142,6 @@ const TimeAndLocation = ({ launch }: any) => {
         </StatLabel>
         <StatNumber fontSize={["md", "xl"]}>
           <Link
-            // @ts-ignore
             as={RouterLink}
             to={`/launch-pads/${launch.launch_site.site_id}`}
           >
@@ -221,15 +220,14 @@ const RocketInfo = ({ launch }: any) => {
 
 const Video = ({ launch }: any) => {
   return (
-    <AspectRatioBox maxH="400px" ratio={1.7}>
+    <AspectRatio maxH="400px" ratio={1.7}>
       <Box
         as="iframe"
         title={launch.mission_name}
-        // @ts-ignore
         src={`https://www.youtube.com/embed/${launch.links.youtube_id}`}
         allowFullScreen
       />
-    </AspectRatioBox>
+    </AspectRatio>
   );
 }
 

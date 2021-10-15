@@ -5,7 +5,7 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 export const Error = () => {
   return (
@@ -18,7 +18,7 @@ export const Error = () => {
         textAlign="center"
         p="8"
       >
-        <AlertIcon size="6" mr={0} />
+        <AlertIcon boxSize="6" mr={0} />
         <AlertTitle mt={4} mb={1} fontSize="lg">
           Problems loading the data
         </AlertTitle>
