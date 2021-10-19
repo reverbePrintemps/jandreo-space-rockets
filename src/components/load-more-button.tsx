@@ -1,26 +1,26 @@
 import React from "react";
 import { Spinner, Flex, Button } from "@chakra-ui/react";
+import { LaunchPad } from "./launch-pad";
+import { Launch } from "./launch";
 
 type LoadMoreButtonProps = {
   loadMore: () => any,
-  data: any[] | undefined,
-  pageSize: any,
-  isLoadingMore: any
-}
+  data?: Launch[][] | LaunchPad[][],
+  pageSize: number,
+  isLoadingMore: boolean;
+};
 
-export const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
+export const LoadMoreButton = ({
   loadMore,
   data,
   pageSize,
   isLoadingMore,
-}) => {
-  const isReachingEnd =
-    data?.[0]?.length === 0 ||
-    (data && data[data.length - 1]?.length < pageSize);
+}: LoadMoreButtonProps) => {
+  const isReachingEnd = data && (data.length === 0 || data[data.length - 1].length < pageSize);
 
   return (
     <Flex justifyContent="center" my="100px">
-      <Button onClick={loadMore} _disabled={isReachingEnd || isLoadingMore}>
+      <Button onClick={loadMore} disabled={isReachingEnd || isLoadingMore}>
         {isLoadingMore ? (
           <Spinner />
         ) : isReachingEnd ? (
@@ -31,4 +31,4 @@ export const LoadMoreButton: React.FC<LoadMoreButtonProps> = ({
       </Button>
     </Flex>
   );
-}
+};

@@ -15,7 +15,7 @@ type BreadcrumbProps = {
   }[]
 }
 
-export const Breadcrumbs: React.FC<BreadcrumbProps> = ({ items }) => {
+export const Breadcrumbs = ({ items }: BreadcrumbProps) => {
   return (
     <Breadcrumb
       m="6"

@@ -1,4 +1,4 @@
-export const formatDate = (timestamp: string) => {
+export const formatDate = (timestamp: Date) => {
   return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     year: "numeric",
@@ -7,7 +7,7 @@ export const formatDate = (timestamp: string) => {
   }).format(new Date(timestamp));
 };
 
-export const formatDateTime = (timestamp: string) => {
+export const formatDateTime = (timestamp: Date) => {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",

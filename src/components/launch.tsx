@@ -26,13 +26,63 @@ import { formatDateTime } from "../utils/format-date";
 import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
 
+export type Launch = {
+  mission_name: string;
+  flight_number: string;
+  launch_success: string;
+  details: string;
+  launch_date_local: Date;
+  launch_date_utc: Date;
+  rocket: LaunchRocket;
+  launch_site: LaunchSite;
+  links: LaunchLinks;
+};
+
+type RocketCores = {
+  core_serial: string;
+  land_success: boolean;
+};
+
+type RocketPayload = {
+  payload_type: string;
+};
+
+type LaunchRocket = {
+  rocket_name: string;
+  rocket_type: string;
+  first_stage: {
+    cores: RocketCores[];
+  };
+  second_stage: {
+    block: number;
+    payloads: RocketPayload[];
+  };
+};
+
+type LaunchSite = {
+  site_id: string;
+  site_name: string;
+  site_name_long: string;
+};
+
+type LaunchLinks = {
+  flickr_images: string[];
+  mission_patch_small: string;
+  youtube_id: string;
+};
+
 type LaunchParams = {
-  launchId: string
-}
+  launchId: string;
+};
+
+type LaunchesResponse = {
+  data?: Launch;
+  error?: Error;
+};
 
 export const Launch = () => {
   const { launchId } = useParams<LaunchParams>();
-  const { data: launch, error } = useSpaceX(`/launches/${launchId}`, {});
+  const { data: launch, error }: LaunchesResponse = useSpaceX(`/launches/${launchId}`, {});
 
   if (error) return <Error />;
 
@@ -53,7 +103,7 @@ export const Launch = () => {
           { label: `#${launch.flight_number}` },
         ]}
       />
-      <Header launch={launch} />
+      <LaunchHeader launch={launch} />
       <Box m={[3, 6]}>
         <TimeAndLocation launch={launch} />
         <RocketInfo launch={launch} />
@@ -65,9 +115,13 @@ export const Launch = () => {
       </Box>
     </div>
   );
-}
+};
 
-const Header = ({ launch }: any) => {
+type LaunchHeaderProps = {
+  launch: Launch;
+};
+
+const LaunchHeader = ({ launch }: LaunchHeaderProps) => {
   return (
     <Flex
       bgImage={`url(${launch.links.flickr_images[0]})`}
@@ -116,9 +170,13 @@ const Header = ({ launch }: any) => {
       </Stack>
     </Flex>
   );
-}
+};
 
-const TimeAndLocation = ({ launch }: any) => {
+type TimeAndLocationProps = {
+  launch: Launch;
+};
+
+const TimeAndLocation = ({ launch }: TimeAndLocationProps) => {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -152,9 +210,13 @@ const TimeAndLocation = ({ launch }: any) => {
       </Stat>
     </SimpleGrid>
   );
-}
+};
 
-const RocketInfo = ({ launch }: any) => {
+type RocketInfoProps = {
+  launch: Launch;
+};
+
+const RocketInfo = ({ launch }: RocketInfoProps) => {
   const cores = launch.rocket.first_stage.cores;
 
   return (
@@ -186,10 +248,10 @@ const RocketInfo = ({ launch }: any) => {
             </Box>
           </StatLabel>
           <StatNumber fontSize={["md", "xl"]}>
-            {cores.map((core: any) => core.core_serial).join(", ")}
+            {cores.map((core: RocketCores) => core.core_serial).join(", ")}
           </StatNumber>
           <StatHelpText>
-            {cores.every((core: any) => core.land_success)
+            {cores.every((core: RocketCores) => core.land_success)
               ? cores.length === 1
                 ? "Recovered"
                 : "All recovered"
@@ -209,16 +271,20 @@ const RocketInfo = ({ launch }: any) => {
           <StatHelpText>
             Payload:{" "}
             {launch.rocket.second_stage.payloads
-              .map((payload: any) => payload.payload_type)
+              .map((payload: RocketPayload) => payload.payload_type)
               .join(", ")}
           </StatHelpText>
         </Stat>
       </StatGroup>
     </SimpleGrid>
   );
-}
+};
 
-const Video = ({ launch }: any) => {
+type VideoProps = {
+  launch: Launch;
+};
+
+const Video = ({ launch }: VideoProps) => {
   return (
     <AspectRatio maxH="400px" ratio={1.7}>
       <Box
@@ -229,16 +295,20 @@ const Video = ({ launch }: any) => {
       />
     </AspectRatio>
   );
-}
+};
 
-const Gallery = ({ images }: any) => {
+type GalleryProps = {
+  images: LaunchLinks["flickr_images"];
+};
+
+const Gallery = ({ images }: GalleryProps) => {
   return (
     <SimpleGrid my="6" minChildWidth="350px" spacing="4">
-      {images.map((image: any) => (
+      {images.map((image: string) => (
         <a href={image} key={image}>
           <Image src={image.replace("_o.jpg", "_z.jpg")} />
         </a>
       ))}
     </SimpleGrid>
   );
-}
+};

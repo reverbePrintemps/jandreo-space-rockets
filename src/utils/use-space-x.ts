@@ -12,10 +12,10 @@ const getSpaceXUrl = (
   path: string | null,
   options: {
     [x: string]: any;
-    limit?: any;
+    limit?: number;
     order?: string | undefined;
     sort?: string | undefined;
-    site_id?: any;
+    site_id?: string;
     offset?: number;
   }
 ) => {
@@ -30,7 +30,7 @@ const getSpaceXUrl = (
 
 export const useSpaceX = (
   path: string | null,
-  options: { limit?: number; order?: string; sort?: string; site_id?: any }
+  options: { limit?: number; order?: string; sort?: string; site_id?: string }
 ) => {
   const endpointUrl = getSpaceXUrl(path, options);
   return useSWR(path ? endpointUrl : null, fetcher);
@@ -38,7 +38,7 @@ export const useSpaceX = (
 
 export const useSpaceXPaginated = (
   path: string,
-  options: { limit: any; order?: string; sort?: string }
+  options: { limit: number; order?: string; sort?: string }
 ) => {
   return useSWRInfinite((pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.length) {

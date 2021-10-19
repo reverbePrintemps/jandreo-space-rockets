@@ -6,11 +6,20 @@ import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
 import { LoadMoreButton } from "./load-more-button";
 import { useSpaceXPaginated } from "../utils/use-space-x";
+import { LaunchPad } from "./launch-pad";
 
 const PAGE_SIZE = 12;
 
+type LaunchPadsResponse = {
+  data?: LaunchPad[][];
+  error?: Error;
+  isValidating?: boolean;
+  size?: number;
+  setSize?: (size: number | ((size: number) => number)) => Promise<any[] | undefined>;
+};
+
 export const LaunchPads = () => {
-  const { data, error, isValidating, size, setSize } = useSpaceXPaginated(
+  const { data: launchPads, error, isValidating, size, setSize }: LaunchPadsResponse = useSpaceXPaginated(
     "/launchpads",
     {
       limit: PAGE_SIZE,
@@ -24,13 +33,13 @@ export const LaunchPads = () => {
       />
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
-        {data && data.flat().map((launchPad) => (
+        {launchPads && launchPads.flat().map((launchPad) => (
           <LaunchPadItem key={launchPad.site_id} launchPad={launchPad} />
         ))}
       </SimpleGrid>
       <LoadMoreButton
         loadMore={() => setSize(size + 1)}
-        data={data}
+        data={launchPads}
         pageSize={PAGE_SIZE}
         isLoadingMore={isValidating}
       />
@@ -38,7 +47,11 @@ export const LaunchPads = () => {
   );
 };
 
-const LaunchPadItem = ({ launchPad }: any) => {
+type LaunchPadItemProps = {
+  launchPad: LaunchPad;
+};
+
+const LaunchPadItem = ({ launchPad }: LaunchPadItemProps) => {
   return (
     <Box
       as={Link}
@@ -88,4 +101,4 @@ const LaunchPadItem = ({ launchPad }: any) => {
       </Box>
     </Box>
   );
-}
+};

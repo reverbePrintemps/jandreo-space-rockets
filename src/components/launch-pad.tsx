@@ -20,25 +20,49 @@ import {
 import { useSpaceX } from "../utils/use-space-x";
 import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
-import { LaunchItem } from "./launches";
+import { LaunchItem, PastLaunchesResponse } from "./launches";
+import { Launch } from "./launch";
 
-type launchPadParams = {
-  launchPadId: string
-}
+type LaunchPadParams = {
+  launchPadId: string;
+};
+
+type Location = {
+  name: string;
+  region: string;
+  latitude: number;
+  longitude: number;
+};
+
+export type LaunchPad = {
+  name: string;
+  status: string;
+  location: Location;
+  site_name_long: string;
+  vehicles_launched: string[];
+  attempted_launches: number;
+  successful_launches: number;
+  details: string;
+  site_id: string;
+};
+
+type LaunchPadsResponse = {
+  data?: LaunchPad;
+  error?: Error;
+};
 
 export const LaunchPad = () => {
-  const { launchPadId } = useParams<launchPadParams>();
-  const { data: launchPad, error } = useSpaceX(`/launchpads/${launchPadId}`, {});
-
-  const { data: launches } = useSpaceX(launchPad ? "/launches/past" : null, {
+  const { launchPadId } = useParams<LaunchPadParams>();
+  const { data: launchPad, error: launchPadError }: LaunchPadsResponse = useSpaceX(`/launchpads/${launchPadId}`, {});
+  const { data: pastLaunches, error: pastLaunchesError }: PastLaunchesResponse = useSpaceX(launchPad ? "/launches/past" : null, {
     limit: 3,
     order: "desc",
     sort: "launch_date_utc",
     site_id: launchPad?.site_id,
   });
 
-  if (error) return <Error />;
-  if (!launchPad) {
+  if (launchPadError || pastLaunchesError) return <Error />;
+  if (!launchPad || !pastLaunches) {
     return (
       <Flex justifyContent="center" alignItems="center" minHeight="50vh">
         <Spinner size="lg" />
@@ -55,23 +79,26 @@ export const LaunchPad = () => {
           { label: launchPad.name },
         ]}
       />
-      <Header launchPad={launchPad} />
+      <LaunchPadHeader launchPad={launchPad} />
       <Box m={[3, 6]}>
         <LocationAndVehicles launchPad={launchPad} />
         <Text color="gray.700" fontSize={["md", null, "lg"]} my="8">
           {launchPad.details}
         </Text>
         <Map location={launchPad.location} />
-        <RecentLaunches launches={launches} />
+        <RecentLaunches launches={pastLaunches} />
       </Box>
     </div>
   );
-}
+};
 
-const randomColor = (start = 200, end = 250) =>
-  `hsl(${start + end * Math.random()}, 80%, 90%)`;
+const randomColor = (start = 200, end = 250) => `hsl(${start + end * Math.random()}, 80%, 90%)`;
 
-const Header = ({ launchPad }: any) => {
+type LaunchPadHeaderProps = {
+  launchPad: LaunchPad;
+};
+
+const LaunchPadHeader = ({ launchPad }: LaunchPadHeaderProps) => {
   return (
     <Flex
       background={`linear-gradient(${randomColor()}, ${randomColor()})`}
@@ -100,7 +127,7 @@ const Header = ({ launchPad }: any) => {
           {launchPad.successful_launches}/{launchPad.attempted_launches}{" "}
           successful
         </Badge>
-        {launchPad.stats === "active" ? (
+        {launchPad.status === "active" ? (
           <Badge colorScheme="green" fontSize={["sm", "md"]}>
             Active
           </Badge>
@@ -112,9 +139,13 @@ const Header = ({ launchPad }: any) => {
       </Stack>
     </Flex>
   );
-}
+};
 
-const LocationAndVehicles = ({ launchPad }: any) => {
+type LocationAndVehiclesProps = {
+  launchPad: LaunchPad;
+};
+
+const LocationAndVehicles = ({ launchPad }: LocationAndVehiclesProps) => {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -140,9 +171,13 @@ const LocationAndVehicles = ({ launchPad }: any) => {
       </Stat>
     </SimpleGrid>
   );
-}
+};
 
-const Map = ({ location }: any) => {
+type MapProps = {
+  location: Location;
+};
+
+const Map = ({ location }: MapProps) => {
   return (
     <AspectRatio ratio={16 / 5}>
       <Box
@@ -151,9 +186,13 @@ const Map = ({ location }: any) => {
       />
     </AspectRatio>
   );
-}
+};
 
-const RecentLaunches = ({ launches }: any) => {
+type RecentLaunchesProps = {
+  launches: Launch[][];
+};
+
+const RecentLaunches = ({ launches }: RecentLaunchesProps) => {
   if (!launches?.length) {
     return null;
   }
@@ -163,10 +202,10 @@ const RecentLaunches = ({ launches }: any) => {
         Last launches
       </Text>
       <SimpleGrid minChildWidth="350px" spacing="4">
-        {launches.map((launch: any) => (
+        {launches.flat().map((launch: Launch) => (
           <LaunchItem launch={launch} key={launch.flight_number} />
         ))}
       </SimpleGrid>
     </Stack>
   );
-}
+};

@@ -8,11 +8,20 @@ import { formatDate } from "../utils/format-date";
 import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
 import { LoadMoreButton } from "./load-more-button";
+import { Launch } from "./launch";
 
 const PAGE_SIZE = 12;
 
+export type PastLaunchesResponse = {
+  data?: Launch[][];
+  error?: Error;
+  isValidating?: boolean;
+  setSize?: (size: number | ((size: number) => number)) => Promise<any[] | undefined>;
+  size?: number;
+};
+
 export const Launches = () => {
-  const { data, error, isValidating, setSize, size } = useSpaceXPaginated(
+  const { data: pastLaunches, error, isValidating, setSize, size }: PastLaunchesResponse = useSpaceXPaginated(
     "/launches/past",
     {
       limit: PAGE_SIZE,
@@ -28,24 +37,25 @@ export const Launches = () => {
       />
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
-        {data &&
-          data
-            .flat()
-            .map((launch) => (
-              <LaunchItem launch={launch} key={launch.flight_number} />
-            ))}
+        {pastLaunches && pastLaunches.flat().map((launch) => (
+          <LaunchItem launch={launch} key={launch.flight_number} />
+        ))}
       </SimpleGrid>
       <LoadMoreButton
         loadMore={() => setSize(size + 1)}
-        data={data}
+        data={pastLaunches}
         pageSize={PAGE_SIZE}
         isLoadingMore={isValidating}
       />
     </div>
   );
-}
+};
 
-export const LaunchItem = ({ launch }: any) => {
+type LaunchItemProps = {
+  launch: Launch;
+};
+
+export const LaunchItem = ({ launch }: LaunchItemProps) => {
   return (
     <Box
       as={Link}
@@ -119,4 +129,4 @@ export const LaunchItem = ({ launch }: any) => {
       </Box>
     </Box>
   );
-}
+};
