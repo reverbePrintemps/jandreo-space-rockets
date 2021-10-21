@@ -10,9 +10,9 @@ import { ChevronsRight } from "react-feather";
 type BreadcrumbProps = {
   items: {
     label: string,
-    to?: string
-  }[]
-}
+    to?: string;
+  }[];
+};
 
 export const Breadcrumbs = ({ items }: BreadcrumbProps) => {
   return (
@@ -36,4 +36,4 @@ export const Breadcrumbs = ({ items }: BreadcrumbProps) => {
       })}
     </Breadcrumb>
   );
-}
+};
