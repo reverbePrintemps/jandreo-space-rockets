@@ -1,18 +1,26 @@
-import React from "react";
-import { Badge, Box, Image, SimpleGrid, Text, Flex } from "@chakra-ui/core";
+import { Badge, Box, Image, SimpleGrid, Text, Flex } from "@chakra-ui/react";
 import { format as timeAgo } from "timeago.js";
 import { Link } from "react-router-dom";
 
 import { useSpaceXPaginated } from "../utils/use-space-x";
 import { formatDate } from "../utils/format-date";
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
-import LoadMoreButton from "./load-more-button";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
+import { LoadMoreButton } from "./load-more-button";
+import { Launch } from "./launch";
 
 const PAGE_SIZE = 12;
 
-export default function Launches() {
-  const { data, error, isValidating, setSize, size } = useSpaceXPaginated(
+export type PastLaunchesResponse = {
+  data?: Launch[][];
+  error?: Error;
+  isValidating?: boolean;
+  setSize?: (size: number | ((size: number) => number)) => Promise<any[] | undefined>;
+  size?: number;
+};
+
+export const Launches = () => {
+  const { data: pastLaunches, error, isValidating, setSize, size }: PastLaunchesResponse = useSpaceXPaginated(
     "/launches/past",
     {
       limit: PAGE_SIZE,
@@ -20,32 +28,33 @@ export default function Launches() {
       sort: "launch_date_utc",
     }
   );
-  console.log(data, error);
+
   return (
-    <div>
+    <>
       <Breadcrumbs
         items={[{ label: "Home", to: "/" }, { label: "Launches" }]}
       />
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
-        {data &&
-          data
-            .flat()
-            .map((launch) => (
-              <LaunchItem launch={launch} key={launch.flight_number} />
-            ))}
+        {pastLaunches && pastLaunches.flat().map((launch) => (
+          <LaunchItem launch={launch} />
+        ))}
       </SimpleGrid>
       <LoadMoreButton
         loadMore={() => setSize(size + 1)}
-        data={data}
+        data={pastLaunches}
         pageSize={PAGE_SIZE}
         isLoadingMore={isValidating}
       />
-    </div>
+    </>
   );
-}
+};
 
-export function LaunchItem({ launch }) {
+type LaunchItemProps = {
+  launch: Launch;
+};
+
+export const LaunchItem = ({ launch }: LaunchItemProps) => {
   return (
     <Box
       as={Link}
@@ -81,11 +90,11 @@ export function LaunchItem({ launch }) {
       <Box p="6">
         <Box d="flex" alignItems="baseline">
           {launch.launch_success ? (
-            <Badge px="2" variant="solid" variantColor="green">
+            <Badge px="2" variant="solid" colorScheme="green">
               Successful
             </Badge>
           ) : (
-            <Badge px="2" variant="solid" variantColor="red">
+            <Badge px="2" variant="solid" colorScheme="red">
               Failed
             </Badge>
           )}
@@ -119,4 +128,4 @@ export function LaunchItem({ launch }) {
       </Box>
     </Box>
   );
-}
+};

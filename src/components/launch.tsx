@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { format as timeAgo } from "timeago.js";
 import { Watch, MapPin, Navigation, Layers } from "react-feather";
@@ -17,20 +16,71 @@ import {
   Image,
   Link,
   Stack,
-  AspectRatioBox,
+  AspectRatio,
   StatGroup,
-} from "@chakra-ui/core";
+} from "@chakra-ui/react";
 
 import { useSpaceX } from "../utils/use-space-x";
 import { formatDateTime } from "../utils/format-date";
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
 
-export default function Launch() {
-  let { launchId } = useParams();
-  const { data: launch, error } = useSpaceX(`/launches/${launchId}`);
+export type Launch = {
+  mission_name: string;
+  flight_number: string;
+  launch_success: string;
+  details: string;
+  launch_date_local: Date;
+  launch_date_utc: Date;
+  rocket: LaunchRocket;
+  launch_site: LaunchSite;
+  links: LaunchLinks;
+};
+
+type RocketCores = {
+  core_serial: string;
+  land_success: boolean;
+};
+
+type RocketPayload = {
+  payload_type: string;
+};
+
+type LaunchRocket = {
+  rocket_name: string;
+  rocket_type: string;
+  first_stage: {
+    cores: RocketCores[];
+  };
+  second_stage: {
+    block: number;
+    payloads: RocketPayload[];
+  };
+};
+
+type LaunchSite = {
+  site_id: string;
+  site_name: string;
+  site_name_long: string;
+};
+
+type LaunchLinks = {
+  flickr_images: string[];
+  mission_patch_small: string;
+  youtube_id: string;
+};
+
+type LaunchesResponse = {
+  data?: Launch;
+  error?: Error;
+};
+
+export const Launch = () => {
+  const launchId = useParams();
+  const { data: launch, error }: LaunchesResponse = useSpaceX(`/launches/${launchId}`, {});
 
   if (error) return <Error />;
+
   if (!launch) {
     return (
       <Flex justifyContent="center" alignItems="center" minHeight="50vh">
@@ -40,7 +90,7 @@ export default function Launch() {
   }
 
   return (
-    <div>
+    <>
       <Breadcrumbs
         items={[
           { label: "Home", to: "/" },
@@ -48,7 +98,7 @@ export default function Launch() {
           { label: `#${launch.flight_number}` },
         ]}
       />
-      <Header launch={launch} />
+      <LaunchHeader launch={launch} />
       <Box m={[3, 6]}>
         <TimeAndLocation launch={launch} />
         <RocketInfo launch={launch} />
@@ -58,17 +108,21 @@ export default function Launch() {
         <Video launch={launch} />
         <Gallery images={launch.links.flickr_images} />
       </Box>
-    </div>
+    </>
   );
-}
+};
 
-function Header({ launch }) {
+type LaunchHeaderProps = {
+  launch: Launch;
+};
+
+const LaunchHeader = ({ launch }: LaunchHeaderProps) => {
   return (
     <Flex
       bgImage={`url(${launch.links.flickr_images[0]})`}
       bgPos="center"
       bgSize="cover"
-      bgRepeat="no-repeat"
+      backgroundRepeat="no-repeat"
       minHeight="30vh"
       position="relative"
       p={[2, 6]}
@@ -96,24 +150,28 @@ function Header({ launch }) {
         {launch.mission_name}
       </Heading>
       <Stack isInline spacing="3">
-        <Badge variantColor="purple" fontSize={["xs", "md"]}>
+        <Badge colorScheme="purple" fontSize={["xs", "md"]}>
           #{launch.flight_number}
         </Badge>
         {launch.launch_success ? (
-          <Badge variantColor="green" fontSize={["xs", "md"]}>
+          <Badge colorScheme="green" fontSize={["xs", "md"]}>
             Successful
           </Badge>
         ) : (
-          <Badge variantColor="red" fontSize={["xs", "md"]}>
+          <Badge colorScheme="red" fontSize={["xs", "md"]}>
             Failed
           </Badge>
         )}
       </Stack>
     </Flex>
   );
-}
+};
 
-function TimeAndLocation({ launch }) {
+type TimeAndLocationProps = {
+  launch: Launch;
+};
+
+const TimeAndLocation = ({ launch }: TimeAndLocationProps) => {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -147,9 +205,13 @@ function TimeAndLocation({ launch }) {
       </Stat>
     </SimpleGrid>
   );
-}
+};
 
-function RocketInfo({ launch }) {
+type RocketInfoProps = {
+  launch: Launch;
+};
+
+const RocketInfo = ({ launch }: RocketInfoProps) => {
   const cores = launch.rocket.first_stage.cores;
 
   return (
@@ -181,10 +243,10 @@ function RocketInfo({ launch }) {
             </Box>
           </StatLabel>
           <StatNumber fontSize={["md", "xl"]}>
-            {cores.map((core) => core.core_serial).join(", ")}
+            {cores.map((core: RocketCores) => core.core_serial).join(", ")}
           </StatNumber>
           <StatHelpText>
-            {cores.every((core) => core.land_success)
+            {cores.every((core: RocketCores) => core.land_success)
               ? cores.length === 1
                 ? "Recovered"
                 : "All recovered"
@@ -204,36 +266,44 @@ function RocketInfo({ launch }) {
           <StatHelpText>
             Payload:{" "}
             {launch.rocket.second_stage.payloads
-              .map((payload) => payload.payload_type)
+              .map((payload: RocketPayload) => payload.payload_type)
               .join(", ")}
           </StatHelpText>
         </Stat>
       </StatGroup>
     </SimpleGrid>
   );
-}
+};
 
-function Video({ launch }) {
+type VideoProps = {
+  launch: Launch;
+};
+
+const Video = ({ launch }: VideoProps) => {
   return (
-    <AspectRatioBox maxH="400px" ratio={1.7}>
+    <AspectRatio maxH="400px" ratio={1.7}>
       <Box
         as="iframe"
         title={launch.mission_name}
         src={`https://www.youtube.com/embed/${launch.links.youtube_id}`}
         allowFullScreen
       />
-    </AspectRatioBox>
+    </AspectRatio>
   );
-}
+};
 
-function Gallery({ images }) {
+type GalleryProps = {
+  images: LaunchLinks["flickr_images"];
+};
+
+const Gallery = ({ images }: GalleryProps) => {
   return (
     <SimpleGrid my="6" minChildWidth="350px" spacing="4">
-      {images.map((image) => (
+      {images.map((image: string) => (
         <a href={image} key={image}>
           <Image src={image.replace("_o.jpg", "_z.jpg")} />
         </a>
       ))}
     </SimpleGrid>
   );
-}
+};

@@ -1,13 +1,13 @@
-export function formatDate(timestamp) {
+export const formatDate = (timestamp: Date) => {
   return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   }).format(new Date(timestamp));
-}
+};
 
-export function formatDateTime(timestamp) {
+export const formatDateTime = (timestamp: Date) => {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
@@ -17,4 +17,4 @@ export function formatDateTime(timestamp) {
     second: "numeric",
     timeZoneName: "short",
   }).format(new Date(timestamp));
-}
+};

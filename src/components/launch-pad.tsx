@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { MapPin, Navigation } from "react-feather";
 import {
@@ -14,27 +13,51 @@ import {
   Text,
   Spinner,
   Stack,
-  AspectRatioBox,
-} from "@chakra-ui/core";
+  AspectRatio,
+} from "@chakra-ui/react";
 
 import { useSpaceX } from "../utils/use-space-x";
-import Error from "./error";
-import Breadcrumbs from "./breadcrumbs";
-import { LaunchItem } from "./launches";
+import { Error } from "./error";
+import { Breadcrumbs } from "./breadcrumbs";
+import { LaunchItem, PastLaunchesResponse } from "./launches";
+import { Launch } from "./launch";
 
-export default function LaunchPad() {
-  let { launchPadId } = useParams();
-  const { data: launchPad, error } = useSpaceX(`/launchpads/${launchPadId}`);
+type Location = {
+  name: string;
+  region: string;
+  latitude: number;
+  longitude: number;
+};
 
-  const { data: launches } = useSpaceX(launchPad ? "/launches/past" : null, {
+export type LaunchPad = {
+  name: string;
+  status: string;
+  location: Location;
+  site_name_long: string;
+  vehicles_launched: string[];
+  attempted_launches: number;
+  successful_launches: number;
+  details: string;
+  site_id: string;
+};
+
+type LaunchPadsResponse = {
+  data?: LaunchPad;
+  error?: Error;
+};
+
+export const LaunchPad = () => {
+  const launchPadId = useParams();
+  const { data: launchPad, error: launchPadError }: LaunchPadsResponse = useSpaceX(`/launchpads/${launchPadId}`, {});
+  const { data: pastLaunches, error: pastLaunchesError }: PastLaunchesResponse = useSpaceX(launchPad ? "/launches/past" : null, {
     limit: 3,
     order: "desc",
     sort: "launch_date_utc",
     site_id: launchPad?.site_id,
   });
 
-  if (error) return <Error />;
-  if (!launchPad) {
+  if (launchPadError || pastLaunchesError) return <Error />;
+  if (!launchPad || !pastLaunches) {
     return (
       <Flex justifyContent="center" alignItems="center" minHeight="50vh">
         <Spinner size="lg" />
@@ -51,29 +74,32 @@ export default function LaunchPad() {
           { label: launchPad.name },
         ]}
       />
-      <Header launchPad={launchPad} />
+      <LaunchPadHeader launchPad={launchPad} />
       <Box m={[3, 6]}>
         <LocationAndVehicles launchPad={launchPad} />
         <Text color="gray.700" fontSize={["md", null, "lg"]} my="8">
           {launchPad.details}
         </Text>
         <Map location={launchPad.location} />
-        <RecentLaunches launches={launches} />
+        <RecentLaunches launches={pastLaunches} />
       </Box>
     </div>
   );
-}
+};
 
-const randomColor = (start = 200, end = 250) =>
-  `hsl(${start + end * Math.random()}, 80%, 90%)`;
+const randomColor = (start = 200, end = 250) => `hsl(${start + end * Math.random()}, 80%, 90%)`;
 
-function Header({ launchPad }) {
+type LaunchPadHeaderProps = {
+  launchPad: LaunchPad;
+};
+
+const LaunchPadHeader = ({ launchPad }: LaunchPadHeaderProps) => {
   return (
     <Flex
       background={`linear-gradient(${randomColor()}, ${randomColor()})`}
       bgPos="center"
       bgSize="cover"
-      bgRepeat="no-repeat"
+      backgroundRepeat="no-repeat"
       minHeight="15vh"
       position="relative"
       flexDirection={["column", "row"]}
@@ -92,25 +118,29 @@ function Header({ launchPad }) {
         {launchPad.site_name_long}
       </Heading>
       <Stack isInline spacing="3">
-        <Badge variantColor="purple" fontSize={["sm", "md"]}>
+        <Badge colorScheme="purple" fontSize={["sm", "md"]}>
           {launchPad.successful_launches}/{launchPad.attempted_launches}{" "}
           successful
         </Badge>
-        {launchPad.stats === "active" ? (
-          <Badge variantColor="green" fontSize={["sm", "md"]}>
+        {launchPad.status === "active" ? (
+          <Badge colorScheme="green" fontSize={["sm", "md"]}>
             Active
           </Badge>
         ) : (
-          <Badge variantColor="red" fontSize={["sm", "md"]}>
+          <Badge colorScheme="red" fontSize={["sm", "md"]}>
             Retired
           </Badge>
         )}
       </Stack>
     </Flex>
   );
-}
+};
 
-function LocationAndVehicles({ launchPad }) {
+type LocationAndVehiclesProps = {
+  launchPad: LaunchPad;
+};
+
+const LocationAndVehicles = ({ launchPad }: LocationAndVehiclesProps) => {
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -136,21 +166,28 @@ function LocationAndVehicles({ launchPad }) {
       </Stat>
     </SimpleGrid>
   );
-}
+};
 
-function Map({ location }) {
+type MapProps = {
+  location: Location;
+};
+
+const Map = ({ location }: MapProps) => {
   return (
-    <AspectRatioBox ratio={16 / 5}>
+    <AspectRatio ratio={16 / 5}>
       <Box
         as="iframe"
         src={`https://maps.google.com/maps?q=${location.latitude}, ${location.longitude}&z=15&output=embed`}
-        alt="demo"
       />
-    </AspectRatioBox>
+    </AspectRatio>
   );
-}
+};
 
-function RecentLaunches({ launches }) {
+type RecentLaunchesProps = {
+  launches: Launch[][];
+};
+
+const RecentLaunches = ({ launches }: RecentLaunchesProps) => {
   if (!launches?.length) {
     return null;
   }
@@ -160,10 +197,10 @@ function RecentLaunches({ launches }) {
         Last launches
       </Text>
       <SimpleGrid minChildWidth="350px" spacing="4">
-        {launches.map((launch) => (
+        {launches.flat().map((launch: Launch) => (
           <LaunchItem launch={launch} key={launch.flight_number} />
         ))}
       </SimpleGrid>
     </Stack>
   );
-}
+};
