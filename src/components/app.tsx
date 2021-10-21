@@ -1,16 +1,15 @@
-import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { Flex, Text } from "@chakra-ui/react";
-
+import { Home } from "./home";
 import { Launches } from "./launches";
 import { Launch } from "./launch";
-import { Home } from "./home";
 import { LaunchPads } from "./launch-pads";
 import { LaunchPad } from "./launch-pad";
 
+
 export const App = () => {
   return (
-    <div>
+    <>
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -19,7 +18,7 @@ export const App = () => {
         <Route path="/launch-pads" element={<LaunchPads />} />
         <Route path="/launch-pads/:launchPadId" element={<LaunchPad />} />
       </Routes>
-    </div>
+    </>
   );
 };
 
