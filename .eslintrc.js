@@ -1,6 +1,6 @@
 module.exports = {
-  extends: ["@sc/sc/common-rules", "@sc/sc/es6", "prettier", "@sc/sc/react"],
-  plugins: ["@sc/sc", "@typescript-eslint"],
+  extends: ["prettier"],
+  plugins: ["@typescript-eslint", "react"],
   env: {
     es6: true,
     browser: true,
@@ -14,7 +14,8 @@ module.exports = {
       // please disable the ESLint rule here.
       extends: [
         "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint",
+        "plugin:react/recommended",
+        "prettier",
       ],
       rules: {
         "@typescript-eslint/explicit-function-return-type": "off",
@@ -25,10 +26,12 @@ module.exports = {
         "no-unused-expressions": "off",
         "@typescript-eslint/no-unused-expressions": "error",
         "jsx-a11y/click-events-have-key-events": 0,
-        // `label-has-for` is deprecated in favor of `label-has-associated-control`
-        "jsx-a11y/label-has-for": "off",
-        "jsx-a11y/label-has-associated-control": "error",
+        "jsx-a11y/label-has-associated-control": "off",
         "jsx-a11y/no-autofocus": 0,
+        "react/no-unused-prop-types": 2,
+        "react/prop-types": 0,
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-key": "off",
       },
     },
     {
@@ -48,6 +51,8 @@ module.exports = {
         "no-unused-expressions": 0,
         "@typescript-eslint/explicit-module-boundary-types": 0,
         "@typescript-eslint/no-var-requires": 0,
+        "react/no-unused-prop-types": 2,
+        "react/prop-types": 0,
       },
     },
     {
