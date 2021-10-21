@@ -1,4 +1,3 @@
-import React from "react";
 import { Spinner, Flex, Button } from "@chakra-ui/react";
 import { LaunchPad } from "./launch-pad";
 import { Launch } from "./launch";

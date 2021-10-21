@@ -1,4 +1,3 @@
-import React from "react";
 import { Badge, Box, Image, SimpleGrid, Text, Flex } from "@chakra-ui/react";
 import { format as timeAgo } from "timeago.js";
 import { Link } from "react-router-dom";
@@ -31,14 +30,14 @@ export const Launches = () => {
   );
 
   return (
-    <div>
+    <>
       <Breadcrumbs
         items={[{ label: "Home", to: "/" }, { label: "Launches" }]}
       />
       <SimpleGrid m={[2, null, 6]} minChildWidth="350px" spacing="4">
         {error && <Error />}
         {pastLaunches && pastLaunches.flat().map((launch) => (
-          <LaunchItem launch={launch} key={launch.flight_number} />
+          <LaunchItem launch={launch} />
         ))}
       </SimpleGrid>
       <LoadMoreButton
@@ -47,7 +46,7 @@ export const Launches = () => {
         pageSize={PAGE_SIZE}
         isLoadingMore={isValidating}
       />
-    </div>
+    </>
   );
 };
 

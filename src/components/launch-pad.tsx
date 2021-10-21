@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { MapPin, Navigation } from "react-feather";
 import {
@@ -22,10 +21,6 @@ import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
 import { LaunchItem, PastLaunchesResponse } from "./launches";
 import { Launch } from "./launch";
-
-type LaunchPadParams = {
-  launchPadId: string;
-};
 
 type Location = {
   name: string;
@@ -52,7 +47,7 @@ type LaunchPadsResponse = {
 };
 
 export const LaunchPad = () => {
-  const { launchPadId } = useParams<LaunchPadParams>();
+  const launchPadId = useParams();
   const { data: launchPad, error: launchPadError }: LaunchPadsResponse = useSpaceX(`/launchpads/${launchPadId}`, {});
   const { data: pastLaunches, error: pastLaunchesError }: PastLaunchesResponse = useSpaceX(launchPad ? "/launches/past" : null, {
     limit: 3,

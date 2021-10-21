@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { format as timeAgo } from "timeago.js";
 import { Watch, MapPin, Navigation, Layers } from "react-feather";
@@ -71,17 +70,13 @@ type LaunchLinks = {
   youtube_id: string;
 };
 
-type LaunchParams = {
-  launchId: string;
-};
-
 type LaunchesResponse = {
   data?: Launch;
   error?: Error;
 };
 
 export const Launch = () => {
-  const { launchId } = useParams<LaunchParams>();
+  const launchId = useParams();
   const { data: launch, error }: LaunchesResponse = useSpaceX(`/launches/${launchId}`, {});
 
   if (error) return <Error />;
@@ -95,7 +90,7 @@ export const Launch = () => {
   }
 
   return (
-    <div>
+    <>
       <Breadcrumbs
         items={[
           { label: "Home", to: "/" },
@@ -113,7 +108,7 @@ export const Launch = () => {
         <Video launch={launch} />
         <Gallery images={launch.links.flickr_images} />
       </Box>
-    </div>
+    </>
   );
 };
 
