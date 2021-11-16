@@ -57,7 +57,7 @@ export const LaunchPad = () => {
   });
 
   if (launchPadError || pastLaunchesError) return <Error />;
-  if (!launchPad || !pastLaunches) {
+  if (!launchPad) {
     return (
       <Flex justifyContent="center" alignItems="center" minHeight="50vh">
         <Spinner size="lg" />
@@ -81,7 +81,7 @@ export const LaunchPad = () => {
           {launchPad.details}
         </Text>
         <Map location={launchPad.location} />
-        <RecentLaunches launches={pastLaunches} />
+        {pastLaunches && <RecentLaunches launches={pastLaunches} />}
       </Box>
     </div>
   );
