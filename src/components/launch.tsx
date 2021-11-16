@@ -1,6 +1,7 @@
+import React from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { format as timeAgo } from "timeago.js";
-import { Watch, MapPin, Navigation, Layers } from "react-feather";
+import { Watch, MapPin, Navigation, Layers, Info } from "react-feather";
 import {
   Flex,
   Heading,
@@ -18,10 +19,12 @@ import {
   Stack,
   AspectRatio,
   StatGroup,
+  Tooltip,
+  Icon,
 } from "@chakra-ui/react";
 
 import { useSpaceX } from "../utils/use-space-x";
-import { formatDateTime } from "../utils/format-date";
+import { formatDateTime, TimeZoneDisplayKind } from "../utils/format-date";
 import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
 
@@ -172,6 +175,8 @@ type TimeAndLocationProps = {
 };
 
 const TimeAndLocation = ({ launch }: TimeAndLocationProps) => {
+  const [tooltipIsOpen, setTooltipIsOpen] = React.useState(false);
+  const launchDateUserTime = formatDateTime({ kind: TimeZoneDisplayKind.user, timestamp: launch.launch_date_local });
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -181,8 +186,16 @@ const TimeAndLocation = ({ launch }: TimeAndLocationProps) => {
             Launch Date
           </Box>
         </StatLabel>
-        <StatNumber fontSize={["md", "xl"]}>
-          {formatDateTime(launch.launch_date_local)}
+        <StatNumber display="inline" fontSize={["md", "xl"]}>
+          {formatDateTime({ kind: TimeZoneDisplayKind.local, timestamp: launch.launch_date_local, launchSite: launch.launch_site.site_id })}
+          <Tooltip hasArrow isOpen={tooltipIsOpen} label={launchDateUserTime} >
+            <Icon alt={launchDateUserTime}
+              onMouseEnter={() => setTooltipIsOpen(true)}
+              onMouseLeave={() => setTooltipIsOpen(false)}
+              onTouchEnd={() => setTooltipIsOpen(!tooltipIsOpen)} marginLeft="0.2em">
+              <Info />
+            </Icon>
+          </Tooltip>
         </StatNumber>
         <StatHelpText>{timeAgo(launch.launch_date_utc)}</StatHelpText>
       </Stat>
