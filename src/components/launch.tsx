@@ -76,7 +76,7 @@ type LaunchesResponse = {
 };
 
 export const Launch = () => {
-  const launchId = useParams();
+  const { launchId } = useParams();
   const { data: launch, error }: LaunchesResponse = useSpaceX(`/launches/${launchId}`, {});
 
   if (error) return <Error />;

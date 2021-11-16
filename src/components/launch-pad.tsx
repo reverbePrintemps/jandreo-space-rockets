@@ -47,7 +47,7 @@ type LaunchPadsResponse = {
 };
 
 export const LaunchPad = () => {
-  const launchPadId = useParams();
+  const { launchPadId } = useParams();
   const { data: launchPad, error: launchPadError }: LaunchPadsResponse = useSpaceX(`/launchpads/${launchPadId}`, {});
   const { data: pastLaunches, error: pastLaunchesError }: PastLaunchesResponse = useSpaceX(launchPad ? "/launches/past" : null, {
     limit: 3,
