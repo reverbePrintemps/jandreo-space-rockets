@@ -8,8 +8,13 @@ import { Error } from "./error";
 import { Breadcrumbs } from "./breadcrumbs";
 import { LoadMoreButton } from "./load-more-button";
 import { Launch } from "./launch";
+import { useEffect } from "react";
 
 const PAGE_SIZE = 12;
+
+type LaunchesProps = {
+  loadMore: boolean;
+}
 
 export type PastLaunchesResponse = {
   data?: Launch[][];
@@ -19,7 +24,7 @@ export type PastLaunchesResponse = {
   size?: number;
 };
 
-export const Launches = () => {
+export const Launches = ({loadMore}: LaunchesProps) => {
   const { data: pastLaunches, error, isValidating, setSize, size }: PastLaunchesResponse = useSpaceXPaginated(
     "/launches/past",
     {
@@ -28,6 +33,12 @@ export const Launches = () => {
       sort: "launch_date_utc",
     }
   );
+
+  const handleLoadMore = () => setSize(size + 1)
+
+  useEffect(() => {
+    handleLoadMore()
+  }, [loadMore])
 
   return (
     <>
@@ -41,7 +52,7 @@ export const Launches = () => {
         ))}
       </SimpleGrid>
       <LoadMoreButton
-        loadMore={() => setSize(size + 1)}
+        loadMore={handleLoadMore}
         data={pastLaunches}
         pageSize={PAGE_SIZE}
         isLoadingMore={isValidating}
