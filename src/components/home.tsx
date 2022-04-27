@@ -2,7 +2,6 @@ import { Link as BrowserLink } from "react-router-dom";
 import { Flex, Box, Text, Stack, Link } from "@chakra-ui/react";
 import { ArrowRight } from "react-feather";
 
-
 export const Home = () => {
   return (
     <Stack m="6" spacing="6">

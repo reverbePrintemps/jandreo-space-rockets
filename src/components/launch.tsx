@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link as RouterLink } from "react-router-dom";
 import { format as timeAgo } from "timeago.js";
 import { Watch, MapPin, Navigation, Layers, Info } from "react-feather";
@@ -22,15 +22,18 @@ import {
   Tooltip,
   Icon,
 } from "@chakra-ui/react";
-
 import { useSpaceX } from "../utils/use-space-x";
 import { formatDateTime, TimeZoneDisplayKind } from "../utils/format-date";
-import { Error } from "./error";
-import { Breadcrumbs } from "./breadcrumbs";
+import { Error } from "./Error";
+import { Breadcrumbs } from "./Breadcrumbs";
+import { FavoriteButton } from "./FavoriteButton";
+import { useFavoritesContext } from "../utils/favorites-context";
+import { ContentKind } from "../utils/local-storage";
 
 export type Launch = {
+  kind: "launch";
   mission_name: string;
-  flight_number: string;
+  flight_number: number;
   launch_success: string;
   details: string;
   launch_date_local: Date;
@@ -79,8 +82,22 @@ type LaunchesResponse = {
 };
 
 export const Launch = () => {
+  const { favoritesContext, updateFavorites } = useFavoritesContext();
+  const [isFavorite, setIsFavorite] = useState(false);
   const { launchId } = useParams();
-  const { data: launch, error }: LaunchesResponse = useSpaceX(`/launches/${launchId}`, {});
+  const { data: launch, error }: LaunchesResponse = useSpaceX(
+    `/launches/${launchId}`,
+    {}
+  );
+
+  // TODO Silly, refactor
+  useEffect(() => {
+    if (favoritesContext?.launches && launch) {
+      setIsFavorite(favoritesContext.launches.includes(JSON.stringify(launch)));
+    } else {
+      setIsFavorite(false);
+    }
+  }, [favoritesContext]);
 
   if (error) return <Error />;
 
@@ -97,11 +114,17 @@ export const Launch = () => {
       <Breadcrumbs
         items={[
           { label: "Home", to: "/" },
-          { label: "Launches", to: ".." },
+          { label: "Launches", to: "/launches" },
           { label: `#${launch.flight_number}` },
         ]}
       />
-      <LaunchHeader launch={launch} />
+      <LaunchHeader
+        launch={launch}
+        isFavorite={isFavorite}
+        updateFavorites={() => {
+          updateFavorites(ContentKind.Launches, JSON.stringify(launch));
+        }}
+      />
       <Box m={[3, 6]}>
         <TimeAndLocation launch={launch} />
         <RocketInfo launch={launch} />
@@ -117,9 +140,15 @@ export const Launch = () => {
 
 type LaunchHeaderProps = {
   launch: Launch;
+  isFavorite: boolean;
+  updateFavorites: () => void;
 };
 
-const LaunchHeader = ({ launch }: LaunchHeaderProps) => {
+const LaunchHeader = ({
+  launch,
+  isFavorite,
+  updateFavorites,
+}: LaunchHeaderProps) => {
   return (
     <Flex
       bgImage={`url(${launch.links.flickr_images[0]})`}
@@ -129,43 +158,53 @@ const LaunchHeader = ({ launch }: LaunchHeaderProps) => {
       minHeight="30vh"
       position="relative"
       p={[2, 6]}
-      alignItems="flex-end"
       justifyContent="space-between"
+      direction="column"
     >
-      <Image
-        position="absolute"
-        top="5"
-        right="5"
-        src={launch.links.mission_patch_small}
-        height={["85px", "150px"]}
-        objectFit="contain"
-        objectPosition="bottom"
+      <FavoriteButton
+        isFavorite={isFavorite}
+        updateFavorites={updateFavorites}
       />
-      <Heading
-        color="white"
-        display="inline"
-        backgroundColor="#718096b8"
-        fontSize={["lg", "5xl"]}
-        px="4"
-        py="2"
-        borderRadius="lg"
+      <Flex
+        direction="row"
+        alignItems="flex-end"
+        justifyContent="space-between"
       >
-        {launch.mission_name}
-      </Heading>
-      <Stack isInline spacing="3">
-        <Badge colorScheme="purple" fontSize={["xs", "md"]}>
-          #{launch.flight_number}
-        </Badge>
-        {launch.launch_success ? (
-          <Badge colorScheme="green" fontSize={["xs", "md"]}>
-            Successful
+        <Image
+          position="absolute"
+          top="5"
+          right="5"
+          src={launch.links.mission_patch_small}
+          height={["85px", "150px"]}
+          objectFit="contain"
+          objectPosition="bottom"
+        />
+        <Heading
+          color="white"
+          display="inline"
+          backgroundColor="#718096b8"
+          fontSize={["lg", "5xl"]}
+          px="4"
+          py="2"
+          borderRadius="lg"
+        >
+          {launch.mission_name}
+        </Heading>
+        <Stack isInline spacing="3">
+          <Badge colorScheme="purple" fontSize={["xs", "md"]}>
+            #{launch.flight_number}
           </Badge>
-        ) : (
-          <Badge colorScheme="red" fontSize={["xs", "md"]}>
-            Failed
-          </Badge>
-        )}
-      </Stack>
+          {launch.launch_success ? (
+            <Badge colorScheme="green" fontSize={["xs", "md"]}>
+              Successful
+            </Badge>
+          ) : (
+            <Badge colorScheme="red" fontSize={["xs", "md"]}>
+              Failed
+            </Badge>
+          )}
+        </Stack>
+      </Flex>
     </Flex>
   );
 };
@@ -175,8 +214,11 @@ type TimeAndLocationProps = {
 };
 
 const TimeAndLocation = ({ launch }: TimeAndLocationProps) => {
-  const [tooltipIsOpen, setTooltipIsOpen] = React.useState(false);
-  const launchDateUserTime = formatDateTime({ kind: TimeZoneDisplayKind.user, timestamp: launch.launch_date_local });
+  const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
+  const launchDateUserTime = formatDateTime({
+    kind: TimeZoneDisplayKind.user,
+    timestamp: launch.launch_date_local,
+  });
   return (
     <SimpleGrid columns={[1, 1, 2]} borderWidth="1px" p="4" borderRadius="md">
       <Stat>
@@ -187,12 +229,19 @@ const TimeAndLocation = ({ launch }: TimeAndLocationProps) => {
           </Box>
         </StatLabel>
         <StatNumber display="inline" fontSize={["md", "xl"]}>
-          {formatDateTime({ kind: TimeZoneDisplayKind.local, timestamp: launch.launch_date_local, launchSite: launch.launch_site.site_id })}
-          <Tooltip hasArrow isOpen={tooltipIsOpen} label={launchDateUserTime} >
-            <Icon alt={launchDateUserTime}
+          {formatDateTime({
+            kind: TimeZoneDisplayKind.local,
+            timestamp: launch.launch_date_local,
+            launchSite: launch.launch_site.site_id,
+          })}
+          <Tooltip hasArrow isOpen={tooltipIsOpen} label={launchDateUserTime}>
+            <Icon
+              alt={launchDateUserTime}
               onMouseEnter={() => setTooltipIsOpen(true)}
               onMouseLeave={() => setTooltipIsOpen(false)}
-              onTouchEnd={() => setTooltipIsOpen(!tooltipIsOpen)} marginLeft="0.2em">
+              onTouchEnd={() => setTooltipIsOpen(!tooltipIsOpen)}
+              marginLeft="0.2em"
+            >
               <Info />
             </Icon>
           </Tooltip>

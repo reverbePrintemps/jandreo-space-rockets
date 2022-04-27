@@ -1,7 +1,7 @@
-import { waitFor } from '@testing-library/dom';
-import { render } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router';
-import { Launch } from 'src/components/launch';
+import { waitFor } from "@testing-library/dom";
+import { render } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { Launch } from "../components/Launch";
 
 describe("Launch", () => {
   describe("on successful fetch", () => {
@@ -14,7 +14,9 @@ describe("Launch", () => {
           </Routes>
         </MemoryRouter>
       );
-      await waitFor(() => expect(launch.getByText("Sentinel-6 Michael Freilich")).toBeTruthy());
+      await waitFor(() =>
+        expect(launch.getByText("Sentinel-6 Michael Freilich")).toBeTruthy()
+      );
     });
   });
 
@@ -28,7 +30,9 @@ describe("Launch", () => {
           </Routes>
         </MemoryRouter>
       );
-      await waitFor(() => expect(error.getByText("Problems loading the data")).toBeTruthy());
+      await waitFor(() =>
+        expect(error.getByText("Problems loading the data")).toBeTruthy()
+      );
     });
   });
 });

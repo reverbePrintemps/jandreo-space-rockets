@@ -1,7 +1,7 @@
-import { waitFor } from '@testing-library/dom';
-import { render } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router';
-import { LaunchPad } from 'src/components/launch-pad';
+import { waitFor } from "@testing-library/dom";
+import { render } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router";
+import { LaunchPad } from "../components/LaunchPad";
 
 describe("LaunchPad", () => {
   describe("on successful fetch", () => {
@@ -14,7 +14,13 @@ describe("LaunchPad", () => {
           </Routes>
         </MemoryRouter>
       );
-      await waitFor(() => expect(launchPad.getByText("Vandenberg Air Force Base Space Launch Complex 3W")).toBeTruthy());
+      await waitFor(() =>
+        expect(
+          launchPad.getByText(
+            "Vandenberg Air Force Base Space Launch Complex 3W"
+          )
+        ).toBeTruthy()
+      );
     });
   });
 
@@ -28,7 +34,9 @@ describe("LaunchPad", () => {
           </Routes>
         </MemoryRouter>
       );
-      await waitFor(() => expect(error.getByText("Problems loading the data")).toBeTruthy());
+      await waitFor(() =>
+        expect(error.getByText("Problems loading the data")).toBeTruthy()
+      );
     });
   });
 });
