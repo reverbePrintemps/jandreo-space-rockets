@@ -1,11 +1,11 @@
 import { Spinner, Flex, Button } from "@chakra-ui/react";
-import { LaunchPad } from "./launch-pad";
-import { Launch } from "./launch";
+import { LaunchPad } from "./LaunchPad";
+import { Launch } from "./Launch";
 
 type LoadMoreButtonProps = {
-  loadMore: () => any,
-  data?: Launch[][] | LaunchPad[][],
-  pageSize: number,
+  loadMore: () => void;
+  data?: Launch[][] | LaunchPad[][];
+  pageSize: number;
   isLoadingMore: boolean;
 };
 
@@ -15,7 +15,8 @@ export const LoadMoreButton = ({
   pageSize,
   isLoadingMore,
 }: LoadMoreButtonProps) => {
-  const isReachingEnd = data && (data.length === 0 || data[data.length - 1].length < pageSize);
+  const isReachingEnd =
+    data && (data.length === 0 || data[data.length - 1].length < pageSize);
 
   return (
     <Flex justifyContent="center" my="100px">

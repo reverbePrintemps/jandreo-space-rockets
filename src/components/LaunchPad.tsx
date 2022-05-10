@@ -15,12 +15,16 @@ import {
   Stack,
   AspectRatio,
 } from "@chakra-ui/react";
-
 import { useSpaceX } from "../utils/use-space-x";
-import { Error } from "./error";
-import { Breadcrumbs } from "./breadcrumbs";
-import { LaunchItem, PastLaunchesResponse } from "./launches";
-import { Launch } from "./launch";
+import { Error } from "./Error";
+import { Breadcrumbs } from "./Breadcrumbs";
+import { Launch } from "./Launch";
+import { FavoriteButton } from "./FavoriteButton";
+import { useFavoritesContext } from "../utils/favorites-context";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { ContentKind } from "../utils/local-storage";
+import { randomColor } from "../utils/random-color";
+import { PreviewCard } from "./PreviewCard";
 
 type Location = {
   name: string;
@@ -30,6 +34,7 @@ type Location = {
 };
 
 export type LaunchPad = {
+  kind: "launchpad";
   name: string;
   status: string;
   location: Location;
@@ -48,13 +53,17 @@ type LaunchPadsResponse = {
 
 export const LaunchPad = () => {
   const { launchPadId } = useParams();
-  const { data: launchPad, error: launchPadError }: LaunchPadsResponse = useSpaceX(`/launchpads/${launchPadId}`, {});
-  const { data: pastLaunches, error: pastLaunchesError }: PastLaunchesResponse = useSpaceX(launchPad ? "/launches/past" : null, {
-    limit: 3,
-    order: "desc",
-    sort: "launch_date_utc",
-    site_id: launchPad?.site_id,
-  });
+  const { data: launchPad, error: launchPadError }: LaunchPadsResponse =
+    useSpaceX(`/launchpads/${launchPadId}`, {});
+  const { data: pastLaunches, error: pastLaunchesError } = useSpaceX(
+    launchPad ? "/launches/past" : null,
+    {
+      limit: 3,
+      order: "desc",
+      sort: "launch_date_utc",
+      site_id: launchPad?.site_id,
+    }
+  );
 
   if (launchPadError || pastLaunchesError) return <Error />;
   if (!launchPad) {
@@ -66,11 +75,11 @@ export const LaunchPad = () => {
   }
 
   return (
-    <div>
+    <Box>
       <Breadcrumbs
         items={[
           { label: "Home", to: "/" },
-          { label: "Launch Pads", to: ".." },
+          { label: "Launch Pads", to: "/launch-pads" },
           { label: launchPad.name },
         ]}
       />
@@ -83,55 +92,81 @@ export const LaunchPad = () => {
         <Map location={launchPad.location} />
         {pastLaunches && <RecentLaunches launches={pastLaunches} />}
       </Box>
-    </div>
+    </Box>
   );
 };
-
-const randomColor = (start = 200, end = 250) => `hsl(${start + end * Math.random()}, 80%, 90%)`;
 
 type LaunchPadHeaderProps = {
   launchPad: LaunchPad;
 };
 
-const LaunchPadHeader = ({ launchPad }: LaunchPadHeaderProps) => {
+export const LaunchPadHeader = ({ launchPad }: LaunchPadHeaderProps) => {
+  const { favoritesContext, updateFavorites } = useFavoritesContext();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const randomGradient = useMemo(
+    () => `linear-gradient(${randomColor()}, ${randomColor()})`,
+    []
+  );
+
+  // TODO Silly, refactor
+  useEffect(() => {
+    if (favoritesContext?.launch_pads) {
+      setIsFavorite(
+        favoritesContext.launch_pads.includes(JSON.stringify(launchPad))
+      );
+    } else {
+      setIsFavorite(false);
+    }
+  }, [favoritesContext]);
   return (
     <Flex
-      background={`linear-gradient(${randomColor()}, ${randomColor()})`}
+      background={randomGradient}
       bgPos="center"
       bgSize="cover"
       backgroundRepeat="no-repeat"
       minHeight="15vh"
       position="relative"
-      flexDirection={["column", "row"]}
       p={[2, 6]}
-      alignItems="flex-end"
       justifyContent="space-between"
+      direction="column"
     >
-      <Heading
-        color="gray.900"
-        display="inline"
-        mx={[2, 4]}
-        my="2"
-        fontSize={["md", "3xl"]}
-        borderRadius="lg"
+      <FavoriteButton
+        isFavorite={isFavorite}
+        updateFavorites={() => {
+          updateFavorites(ContentKind.LaunchPads, JSON.stringify(launchPad));
+        }}
+      />
+      <Flex
+        direction="row"
+        alignItems="flex-end"
+        justifyContent="space-between"
       >
-        {launchPad.site_name_long}
-      </Heading>
-      <Stack isInline spacing="3">
-        <Badge colorScheme="purple" fontSize={["sm", "md"]}>
-          {launchPad.successful_launches}/{launchPad.attempted_launches}{" "}
-          successful
-        </Badge>
-        {launchPad.status === "active" ? (
-          <Badge colorScheme="green" fontSize={["sm", "md"]}>
-            Active
+        <Heading
+          color="gray.900"
+          display="inline"
+          px="4"
+          py="2"
+          fontSize={["md", "3xl"]}
+          borderRadius="lg"
+        >
+          {launchPad.site_name_long}
+        </Heading>
+        <Stack isInline spacing="3">
+          <Badge colorScheme="purple" fontSize={["sm", "md"]}>
+            {launchPad.successful_launches}/{launchPad.attempted_launches}{" "}
+            successful
           </Badge>
-        ) : (
-          <Badge colorScheme="red" fontSize={["sm", "md"]}>
-            Retired
-          </Badge>
-        )}
-      </Stack>
+          {launchPad.status === "active" ? (
+            <Badge colorScheme="green" fontSize={["sm", "md"]}>
+              Active
+            </Badge>
+          ) : (
+            <Badge colorScheme="red" fontSize={["sm", "md"]}>
+              Retired
+            </Badge>
+          )}
+        </Stack>
+      </Flex>
     </Flex>
   );
 };
@@ -157,11 +192,16 @@ const LocationAndVehicles = ({ launchPad }: LocationAndVehiclesProps) => {
         <StatLabel display="flex">
           <Box as={Navigation} width="1em" />{" "}
           <Box ml="2" as="span">
-            Vehicles
+            Vehicles launched
           </Box>
         </StatLabel>
         <StatNumber fontSize="xl">
-          {launchPad.vehicles_launched.join(", ")}
+          {launchPad.vehicles_launched.map((vehicle) => (
+            <Fragment>
+              {vehicle}
+              <br />
+            </Fragment>
+          ))}
         </StatNumber>
       </Stat>
     </SimpleGrid>
@@ -198,7 +238,11 @@ const RecentLaunches = ({ launches }: RecentLaunchesProps) => {
       </Text>
       <SimpleGrid minChildWidth="350px" spacing="4">
         {launches.flat().map((launch: Launch) => (
-          <LaunchItem launch={launch} key={launch.flight_number} />
+          <PreviewCard
+            key={launch.flight_number}
+            item={{ kind: ContentKind.Launches, launch }}
+            updateFavorites={() => null}
+          />
         ))}
       </SimpleGrid>
     </Stack>

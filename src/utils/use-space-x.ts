@@ -11,7 +11,7 @@ const fetcher = async (args: RequestInfo) => {
 const getSpaceXUrl = (
   path: string | null,
   options: {
-    [x: string]: any;
+    [x: string]: unknown;
     limit?: number;
     order?: string | undefined;
     sort?: string | undefined;
@@ -21,7 +21,7 @@ const getSpaceXUrl = (
 ) => {
   const searchParams = new URLSearchParams();
   for (const property in options) {
-    searchParams.append(property, options[property]);
+    searchParams.append(property, options[property] as string);
   }
 
   const spaceXApiBase = process.env.REACT_APP_SPACEX_API_URL;
