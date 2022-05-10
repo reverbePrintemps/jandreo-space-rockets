@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.js": "/jandreo-space-rockets/static/js/main.6ac6cc6c.chunk.js",
-    "main.js.map": "/jandreo-space-rockets/static/js/main.6ac6cc6c.chunk.js.map",
-    "runtime-main.js": "/jandreo-space-rockets/static/js/runtime-main.f16b571c.js",
-    "runtime-main.js.map": "/jandreo-space-rockets/static/js/runtime-main.f16b571c.js.map",
-    "static/js/2.fdb4d648.chunk.js": "/jandreo-space-rockets/static/js/2.fdb4d648.chunk.js",
-    "static/js/2.fdb4d648.chunk.js.map": "/jandreo-space-rockets/static/js/2.fdb4d648.chunk.js.map",
+    "main.js": "/jandreo-space-rockets/static/js/main.322384e2.chunk.js",
+    "main.js.map": "/jandreo-space-rockets/static/js/main.322384e2.chunk.js.map",
+    "runtime-main.js": "/jandreo-space-rockets/static/js/runtime-main.5affc3e8.js",
+    "runtime-main.js.map": "/jandreo-space-rockets/static/js/runtime-main.5affc3e8.js.map",
+    "static/js/2.8b39e730.chunk.js": "/jandreo-space-rockets/static/js/2.8b39e730.chunk.js",
+    "static/js/2.8b39e730.chunk.js.map": "/jandreo-space-rockets/static/js/2.8b39e730.chunk.js.map",
     "index.html": "/jandreo-space-rockets/index.html",
-    "static/js/2.fdb4d648.chunk.js.LICENSE.txt": "/jandreo-space-rockets/static/js/2.fdb4d648.chunk.js.LICENSE.txt"
+    "static/js/2.8b39e730.chunk.js.LICENSE.txt": "/jandreo-space-rockets/static/js/2.8b39e730.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.f16b571c.js",
-    "static/js/2.fdb4d648.chunk.js",
-    "static/js/main.6ac6cc6c.chunk.js"
+    "static/js/runtime-main.5affc3e8.js",
+    "static/js/2.8b39e730.chunk.js",
+    "static/js/main.322384e2.chunk.js"
   ]
 }
